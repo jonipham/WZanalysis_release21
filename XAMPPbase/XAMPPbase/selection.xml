@@ -1,0 +1,15 @@
+<lcgdict>
+   <class name="XAMPP::AnalysisConfig" />
+   <class name="XAMPP::SUSYAnalysisHelper" />
+   <class name="XAMPP::SUSYElectronSelector" />
+   <class name="XAMPP::SUSYJetSelector" />
+   <class name="XAMPP::SUSYMetSelector" />
+   <class name="XAMPP::SUSYMuonSelector" />
+   <class name="XAMPP::SUSYPhotonSelector" />
+   <class name="XAMPP::SUSYSystematics" />
+   <class name="XAMPP::SUSYTauSelector" />
+   <class name="XAMPP::SUSYTriggerTool" />
+   <class name="XAMPP::SUSYTruthAnalysisHelper" />
+   <class name="XAMPP::SUSYTruthSelector" />
+   <class name="XAMPP::PileupHelper" />
+</lcgdict>

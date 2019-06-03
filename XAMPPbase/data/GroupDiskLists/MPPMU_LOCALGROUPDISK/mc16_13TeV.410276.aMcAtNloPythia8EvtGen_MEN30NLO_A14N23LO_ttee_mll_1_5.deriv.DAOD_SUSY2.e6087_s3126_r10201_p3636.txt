@@ -1,0 +1,10 @@
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/9f/9b/DAOD_SUSY2.15546124._000001.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/34/26/DAOD_SUSY2.15546124._000003.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/4f/fd/DAOD_SUSY2.15546124._000004.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/df/ff/DAOD_SUSY2.15546124._000005.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/9b/c6/DAOD_SUSY2.15546124._000007.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/a3/d8/DAOD_SUSY2.15546124._000008.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/93/b8/DAOD_SUSY2.15546124._000009.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/cf/49/DAOD_SUSY2.15546124._000010.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/3f/50/DAOD_SUSY2.15546124._000011.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/bd/80/DAOD_SUSY2.15546124._000012.pool.root.1

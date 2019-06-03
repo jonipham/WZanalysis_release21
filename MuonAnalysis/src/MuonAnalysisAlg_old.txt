@@ -1,0 +1,540 @@
+// MuonAnalysis includes
+#include "MuonAnalysisAlg.h"
+
+//#include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/MuonContainer.h"
+//#include "xAODTrigger/MuonRoIContainer.h"
+//#include <HIEventUtils/IHICentralityTool.h>
+//#include <HIEventUtils/HICentralityTool.h>
+#include "xAODHIEvent/HIEventShape.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackingPrimitives.h"
+#include "xAODTruth/xAODTruthHelpers.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "METInterface/IMETMaker.h"
+#include <METInterface/IMETSystematicsTool.h>
+#include "IsolationSelection/IsolationSelectionTool.h"
+#include "xAODPrimitives/IsolationType.h"
+
+#include <XAMPPbase/AnalysisConfig.h>
+#include <XAMPPbase/EventInfo.h>
+//#include <XAMPPbase/IEventInfo.h>
+#include <XAMPPbase/HistoBase.h>
+#include <XAMPPbase/IDiTauSelector.h>
+#include <XAMPPbase/IElectronSelector.h>
+#include <XAMPPbase/IJetSelector.h>
+#include <XAMPPbase/IMetSelector.h>
+#include <XAMPPbase/IMuonSelector.h>
+#include <XAMPPbase/IPhotonSelector.h>
+#include <XAMPPbase/ITauSelector.h>
+#include <XAMPPbase/ITriggerTool.h>
+#include <XAMPPbase/ITruthSelector.h>
+#include <XAMPPbase/MetaDataTree.h>
+#include <XAMPPbase/ReconstructedParticles.h>
+#include <XAMPPbase/SUSYAnalysisHelper.h>
+#include <XAMPPbase/SUSYSystematics.h>
+#include <XAMPPbase/TreeBase.h>
+
+// Tool includes
+#include <AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h>
+#include <AsgTools/StatusCode.h>
+#include <GaudiKernel/ITHistSvc.h>
+#include <PATInterfaces/CorrectionCode.h>
+#include <PATInterfaces/SystematicSet.h>
+#include <PathResolver/PathResolver.h>
+#include <SUSYTools/SUSYCrossSection.h>
+#include <SUSYTools/SUSYObjDef_xAOD.h>
+
+#include <fstream>
+#include <iostream>
+
+
+namespace XAMPP {
+  MuonAnalysisAlg::MuonAnalysisAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AthAnalysisAlgorithm( name, pSvcLocator ){
+
+    //declareProperty( "Property", m_nProperty = 0, "My Example Integer Property" ); //example property declaration
+    //declareProperty("EventInfoHandler", m_XAMPPInfo, "The XAMPPInfo event Handler");
+
+  }
+
+
+  MuonAnalysisAlg::~MuonAnalysisAlg() {}
+
+
+  StatusCode MuonAnalysisAlg::initialize() {
+    ATH_MSG_INFO ("Initializing " << name() << "...");
+    //
+    //This is called once, before the start of the event loop
+    //Retrieves of tools you have configured in the joboptions go here
+    //
+
+    //HERE IS AN EXAMPLE
+    //We will create a histogram and a ttree and register them to the histsvc
+    //Remember to configure the histsvc stream in the joboptions
+    //
+    //m_myHist = new TH1D("myHist","myHist",100,0,100);
+    //CHECK( histSvc()->regHist("/MYSTREAM/myHist", m_myHist) ); //registers histogram to output stream
+    //m_myTree = new TTree("myTree","myTree");
+    //CHECK( histSvc()->regTree("/MYSTREAM/SubDirectory/myTree", m_myTree) ); //registers tree to output stream inside a sub-directory
+    //m_muonHist = new TH1D("muonHist","muonHist",100,0,100);
+    //CHECK( histSvc()->regHist("/MYSTREAM/muonHist", m_muonHist) ); //registers histogram to output stream
+
+
+    m_muonTree = new TTree("muonTree","muonTree");
+    m_muonTree->Branch("runNumber",   &m_runNumber);
+    m_muonTree->Branch("eventNumber",   &m_eventNumber);
+    m_muonTree->Branch("lumiBlock",   &m_lumiBlock);
+    m_muonTree->Branch("isMC",   &m_isMC);
+
+    m_muonTree->Branch("HLT_mu15",          &m_HLT_mu15);
+    m_muonTree->Branch("match_HLT_mu15",          &match_HLT_mu15);
+    m_muonTree->Branch("muon_pt",    &m_muon_pt);
+    m_muonTree->Branch("muon_eta",    &m_muon_eta);
+    m_muonTree->Branch("muon_phi",    &m_muon_phi);
+    m_muonTree->Branch("muon_charge",    &m_muon_charge);
+    m_muonTree->Branch("muon_quality",    &m_muon_quality);
+    m_muonTree->Branch("muon_type",    &m_muon_type);
+    m_muonTree->Branch("truthmuon",        &truthmuon);
+    /*m_muonTree->Branch("IDtrackLink_pt", &m_IDtrackLink_pt);
+    m_muonTree->Branch("MStrackLink_pt", &m_MStrackLink_pt);
+    m_muonTree->Branch("CBtrackLink_pt", &m_CBtrackLink_pt);
+    m_muonTree->Branch("IDtrackLink_phi", &m_IDtrackLink_phi);
+    m_muonTree->Branch("MStrackLink_phi", &m_MStrackLink_phi);
+    m_muonTree->Branch("CBtrackLink_phi", &m_CBtrackLink_phi);
+    m_muonTree->Branch("IDtrackLink_eta", &m_IDtrackLink_eta);
+    m_muonTree->Branch("MStrackLink_eta", &m_MStrackLink_eta);
+    m_muonTree->Branch("CBtrackLink_eta", &m_CBtrackLink_eta);
+    m_muonTree->Branch("IDtrackLink_d0", &m_IDtrackLink_d0);
+    m_muonTree->Branch("IDtrackLink_d0err", &m_IDtrackLink_d0err);
+    m_muonTree->Branch("IDtrackLink_z0", &m_IDtrackLink_z0);
+    m_muonTree->Branch("IDtrackLink_z0err", &m_IDtrackLink_z0err);
+    m_muonTree->Branch("IDtrackLink_d0sig", &m_IDtrackLink_d0sig);
+    m_muonTree->Branch("IDtrackLink_z0sig", &m_IDtrackLink_z0sig);
+    m_muonTree->Branch("MStrackLink_d0", &m_MStrackLink_d0);
+    m_muonTree->Branch("MStrackLink_d0err", &m_MStrackLink_d0err);
+    m_muonTree->Branch("MStrackLink_z0", &m_MStrackLink_z0);
+    m_muonTree->Branch("MStrackLink_z0err", &m_MStrackLink_z0err);
+    m_muonTree->Branch("MStrackLink_d0sig", &m_MStrackLink_d0sig);
+    m_muonTree->Branch("MStrackLink_z0sig", &m_MStrackLink_z0sig);
+    m_muonTree->Branch("CBtrackLink_d0", &m_CBtrackLink_d0);
+    m_muonTree->Branch("CBtrackLink_d0err", &m_CBtrackLink_d0err);
+    m_muonTree->Branch("CBtrackLink_z0", &m_CBtrackLink_z0);
+    m_muonTree->Branch("CBtrackLink_z0err", &m_CBtrackLink_z0err);
+    m_muonTree->Branch("CBtrackLink_d0sig", &m_CBtrackLink_d0sig);
+    m_muonTree->Branch("CBtrackLink_z0sig", &m_CBtrackLink_z0sig);
+
+    m_muonTree->Branch("Gmuon_pt",    &m_Gmuon_pt);
+    m_muonTree->Branch("Gmuon_eta",    &m_Gmuon_eta);
+    m_muonTree->Branch("Gmuon_phi",    &m_Gmuon_phi);
+    m_muonTree->Branch("Gmuon_charge",    &m_Gmuon_charge);
+    m_muonTree->Branch("Gmuon_quality",    &m_Gmuon_quality);
+    m_muonTree->Branch("Gmuon_type",    &m_Gmuon_type);
+
+    m_muonTree->Branch("GLmuon_pt",    &m_GLmuon_pt);
+    m_muonTree->Branch("GLmuon_eta",    &m_GLmuon_eta);
+    m_muonTree->Branch("GLmuon_phi",    &m_GLmuon_phi);
+    m_muonTree->Branch("GLmuon_charge",    &m_GLmuon_charge);
+    m_muonTree->Branch("GLmuon_quality",    &m_GLmuon_quality);
+    m_muonTree->Branch("GLmuon_type",    &m_GLmuon_type);
+
+    m_muonTree->Branch("FCLmuon_pt",    &m_FCLmuon_pt);
+    m_muonTree->Branch("FCLmuon_eta",    &m_FCLmuon_eta);
+    m_muonTree->Branch("FCLmuon_phi",    &m_FCLmuon_phi);
+    m_muonTree->Branch("FCLmuon_charge",    &m_FCLmuon_charge);
+    m_muonTree->Branch("FCLmuon_quality",    &m_FCLmuon_quality);
+    m_muonTree->Branch("FCLmuon_type",    &m_FCLmuon_type);
+
+    m_muonTree->Branch("Lmuon_pt",    &m_Lmuon_pt);
+    m_muonTree->Branch("Lmuon_eta",    &m_Lmuon_eta);
+    m_muonTree->Branch("Lmuon_phi",    &m_Lmuon_phi);
+    m_muonTree->Branch("Lmuon_charge",    &m_Lmuon_charge);
+    m_muonTree->Branch("Lmuon_quality",    &m_Lmuon_quality);
+    m_muonTree->Branch("Lmuon_type",    &m_Lmuon_type);*/
+
+
+    m_tdt.setTypeAndName("Trig::TrigDecisionTool/TrigDecisionTool");
+    CHECK( m_tdt.initialize() );
+
+    m_tmt.setTypeAndName("Trig::MatchingTool/MyMatchingTool");
+    CHECK( m_tmt.initialize() );
+
+    m_muonSelection.setTypeAndName("CP::MuonSelectionTool/MyMuonSelectionTool");
+    CHECK( m_muonSelection.initialize() );
+
+    //m_muonTagSelection.setTypeAndName("CP::MuonSelectionTool/MyMuonTagSelectionTool");
+    //CHECK( m_muonTagSelection.initialize() );
+
+    //CP::IsolationSelectionTool m_isoSelection( "MyIsoSelectionTool" );
+    m_isoSelection.setTypeAndName("CP::IsolationSelectionTool/MyIsoSelectionTool");
+    CHECK( m_isoSelection.setProperty("muonWP","FixedCutTight"));
+    CHECK( m_isoSelection.initialize() );
+
+    m_isoSelectionGrad.setTypeAndName("CP::IsolationSelectionTool/MyIsoSelectionToolG");
+    CHECK( m_isoSelectionGrad.setProperty("muonWP","Gradient"));
+    CHECK( m_isoSelectionGrad.initialize() );
+
+    m_isoSelectionGradLoose.setTypeAndName("CP::IsolationSelectionTool/MyIsoSelectionToolGL");
+    CHECK( m_isoSelectionGradLoose.setProperty("muonWP","GradientLoose"));
+    CHECK( m_isoSelectionGradLoose.initialize() );
+
+    m_isoSelectionFCLoose.setTypeAndName("CP::IsolationSelectionTool/MyIsoSelectionToolFCL");
+    CHECK( m_isoSelectionFCLoose.setProperty("muonWP","FixedCutLoose"));
+    CHECK( m_isoSelectionFCLoose.initialize() );
+
+    m_isoSelectionLoose.setTypeAndName("CP::IsolationSelectionTool/MyIsoSelectionToolL");
+    CHECK( m_isoSelectionLoose.setProperty("muonWP","Loose"));
+    CHECK( m_isoSelectionLoose.initialize() );
+
+    m_trackSelection.setTypeAndName("InDet::InDetTrackSelectionTool/MyInDetSelectionTool");
+    CHECK( m_trackSelection.initialize() );
+
+    //m_InfoHandle.setTypeAndName("XAMPP::IEventInfo/InfoHandle");
+    //ATH_CHECK(m_InfoHandle->initialize());
+
+    //m_XAMPPInfo.setTypeAndName("XAMPP::IEventInfo/XAMPPInfo");
+    //ATH_CHECK(m_XAMPPInfo->initialize());
+
+    /*m_metutil.setTypeAndName("IMETMaker/METTool");
+    CHECK( m_metutil.initialize() );
+    if( m_metutil.retrieve().isFailure() ) {
+    ATH_MSG_ERROR("Failed to retrieve METMaker tool: " << m_metutil->name());
+    return StatusCode::FAILURE;
+  };*/
+
+    //m_metutil.setTypeAndName("IMETMaker/METTool");
+    //CHECK( m_metutil.initialize());
+
+    CHECK( histSvc()->regTree("/MuonAnalysis/muonTree", m_muonTree) ); //registers tree to output stream inside a sub-directory
+
+
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode MuonAnalysisAlg::finalize() {
+    ATH_MSG_INFO ("Finalizing " << name() << "...");
+    //
+    //Things that happen once at the end of the event loop go here
+    //
+
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode MuonAnalysisAlg::execute() {
+    ATH_MSG_DEBUG ("Executing " << name() << "...");
+    setFilterPassed(false); //optional: start with algorithm not passed
+
+
+
+    //
+    //Your main analysis code goes here
+    //If you will use this algorithm to perform event skimming, you
+    //should ensure the setFilterPassed method is called
+    //If never called, the algorithm is assumed to have 'passed' by default
+    //
+
+
+    //HERE IS AN EXAMPLE
+    const xAOD::EventInfo* ei = 0;
+    CHECK( evtStore()->retrieve( ei , "EventInfo" ) );
+    //ATH_MSG_INFO("eventNumber=" << ei->eventNumber() );
+    m_runNumber = ei->runNumber();
+    m_eventNumber = ei->eventNumber();
+    m_lumiBlock = ei->lumiBlock();
+
+    // check if the event is data or MC
+    //bool isMC = false;
+    if(ei->eventType( xAOD::EventInfo::IS_SIMULATION ) ) m_isMC = true;
+    else {
+        const xAOD::TruthParticleContainer * particles = 0;
+        if( evtStore()->retrieve(particles, "TruthParticles") ) {
+          m_isMC = true; // this is overlay
+          std::cout << "This is overlay" << std::endl;
+        }
+    }
+    //if (!isMC) std::cout << "This is data" << std::endl;
+
+
+
+    m_HLT_mu15 = m_tdt->isPassed("HLT_mu15");
+
+    // loop over muons and save them in vectors
+    const xAOD::MuonContainer* muons = 0;
+    CHECK( evtStore()->retrieve(muons,"CalibratedMuons") );
+
+    //const xAOD::MuonRoIContainer* muonrois = 0;
+    //CHECK( evtStore()->retrieve(muonrois, "LVL1MuonRoIs") );
+
+    const xAOD::TrackParticleContainer* tracks = 0;
+    ANA_CHECK(evtStore()->retrieve( tracks, "InDetTrackParticles" ));
+
+    const xAOD::TrackParticleContainer* msextracks = 0;
+    ANA_CHECK(evtStore()->retrieve( msextracks, "ExtrapolatedMuonTrackParticles" ));
+
+
+    int n_idtracks = 0;
+    int n_mstracks = 0;
+
+    //XAMPP::EventInfo* xamppinfo =0;
+    //CHECK(evtStore()->retrieve(xamppinfo, "EventInfoHandler"));
+    //ATH_CHECK(m_InfoHandle.retrieve());
+    //m_XAMPPInfo = dynamic_cast<XAMPP::EventInfo*>(m_InfoHandle.operator->());
+    //ATH_CHECK(m_XAMPPInfo->NewEventVariable<float>("MetTST_mpx"));
+    //static XAMPP::Storage<float>* dec_XAMPPmetTST_mpx = m_XAMPPInfo->GetVariableStorage < float > ("MetTST_mpx");
+    //float dec_XAMPPmetTST_mpx = m_XAMPPInfo->GetVariableStorage < float > ("MetTST_mpx");
+    //ATH_CHECK(m_XAMPPInfo->BookParticleStorage("Muon",true,true,true));
+    //XAMPP::ParticleStorage* MuonStore = m_XAMPPInfo->GetParticleStorage("Muon");
+    //ATH_CHECK(MuonStore->SaveFloat("ptcone20"));
+
+    //xAOD::MissingETContainer* m_MetTST;
+    //xAOD::MissingETContainer* m_MetCST;
+    //xAOD::MissingETContainer* m_MetTrack;
+
+    //ATH_CHECK(evtStore()->retrieve(m_MetTST,"MetTST"));
+    //float MetTST_mpx=m_MetTST->mpx();
+
+    for(const auto *muon_itr: *muons) {
+        bool m_match_HLT_mu15=m_tmt->match( *muon_itr, "HLT_mu15", 0.05, false);
+        match_HLT_mu15->push_back(m_match_HLT_mu15);
+
+        xAOD::Muon::Quality my_quality;
+        my_quality = m_muonSelection->getQuality(*muon_itr);
+
+        if ((m_isMC || (!m_isMC && m_HLT_mu15 && m_match_HLT_mu15)) && muon_itr->pt()/1000.>=15. && m_muonSelection->accept(*muon_itr) && m_isoSelection->accept(*muon_itr) ) {
+          if (m_isoSelection->accept( *muon_itr )) printf(" Muon passes Isolation - ");
+          m_muon_pt->push_back(muon_itr->pt()/1000);
+          m_muon_quality->push_back(my_quality);
+          m_muon_eta->push_back(muon_itr->eta());
+          m_muon_phi->push_back(muon_itr->phi());
+          m_muon_charge->push_back(muon_itr->charge());
+          m_muon_type->push_back(muon_itr->muonType());
+
+        /*if ((m_isMC || (!m_isMC && m_HLT_mu15 && m_match_HLT_mu15)) && muon_itr->pt()/1000.>=15. && m_muonSelection->accept(*muon_itr) && m_isoSelectionGrad->accept(*muon_itr) ) {
+          m_Gmuon_pt->push_back(muon_itr->pt()/1000);
+          m_Gmuon_quality->push_back(my_quality);
+          m_Gmuon_eta->push_back(muon_itr->eta());
+          m_Gmuon_phi->push_back(muon_itr->phi());
+          m_Gmuon_charge->push_back(muon_itr->charge());
+          m_Gmuon_type->push_back(muon_itr->muonType());
+        }
+
+        if ((m_isMC || (!m_isMC && m_HLT_mu15 && m_match_HLT_mu15)) && muon_itr->pt()/1000.>=15. && m_muonSelection->accept(*muon_itr) && m_isoSelectionGradLoose->accept(*muon_itr) ) {
+          m_GLmuon_pt->push_back(muon_itr->pt()/1000);
+          m_GLmuon_quality->push_back(my_quality);
+          m_GLmuon_eta->push_back(muon_itr->eta());
+          m_GLmuon_phi->push_back(muon_itr->phi());
+          m_GLmuon_charge->push_back(muon_itr->charge());
+          m_GLmuon_type->push_back(muon_itr->muonType());
+        }
+
+        if ((m_isMC || (!m_isMC && m_HLT_mu15 && m_match_HLT_mu15)) && muon_itr->pt()/1000.>=15. && m_muonSelection->accept(*muon_itr) && m_isoSelectionFCLoose->accept(*muon_itr) ) {
+          m_FCLmuon_pt->push_back(muon_itr->pt()/1000);
+          m_FCLmuon_quality->push_back(my_quality);
+          m_FCLmuon_eta->push_back(muon_itr->eta());
+          m_FCLmuon_phi->push_back(muon_itr->phi());
+          m_FCLmuon_charge->push_back(muon_itr->charge());
+          m_FCLmuon_type->push_back(muon_itr->muonType());
+        }
+
+        if ((m_isMC || (!m_isMC && m_HLT_mu15 && m_match_HLT_mu15)) && muon_itr->pt()/1000.>=15. && m_muonSelection->accept(*muon_itr) && m_isoSelectionLoose->accept(*muon_itr) ) {
+          m_Lmuon_pt->push_back(muon_itr->pt()/1000);
+          m_Lmuon_quality->push_back(my_quality);
+          m_Lmuon_eta->push_back(muon_itr->eta());
+          m_Lmuon_phi->push_back(muon_itr->phi());
+          m_Lmuon_charge->push_back(muon_itr->charge());
+          m_Lmuon_type->push_back(muon_itr->muonType());
+        }*/
+
+
+          // Tracks from ElementLink
+          /*const xAOD::TrackParticle* idtp =  0;
+          const xAOD::TrackParticle* mstp = 0;
+          const xAOD::TrackParticle* cbtp = 0;
+          ElementLink<xAOD::TrackParticleContainer> idtpLink = (muon_itr)->inDetTrackParticleLink();
+          ElementLink<xAOD::TrackParticleContainer> mstpLink = (muon_itr)->extrapolatedMuonSpectrometerTrackParticleLink();
+          ElementLink<xAOD::TrackParticleContainer> cbtpLink = (muon_itr)->combinedTrackParticleLink();
+          if(idtpLink.isValid()) {
+              idtp = *idtpLink;
+              m_IDtrackLink_pt->push_back(idtp->pt()/1000.);
+              m_IDtrackLink_eta->push_back(idtp->eta());
+              m_IDtrackLink_phi->push_back(idtp->phi());
+              m_IDtrackLink_d0->push_back(idtp->d0());
+              m_IDtrackLink_z0->push_back(idtp->z0());
+              m_IDtrackLink_d0err->push_back(sqrt(idtp->definingParametersCovMatrix()(0,0)));
+              m_IDtrackLink_z0err->push_back(sqrt(idtp->definingParametersCovMatrix()(1,1)));
+              m_IDtrackLink_d0sig->push_back(fabs(idtp->d0())/sqrt(idtp->definingParametersCovMatrix()(0,0)));
+              m_IDtrackLink_z0sig->push_back(fabs(idtp->z0())/sqrt(idtp->definingParametersCovMatrix()(1,1)));
+              }
+          if(mstpLink.isValid()) {
+              mstp = *mstpLink;
+              m_MStrackLink_pt->push_back(mstp->pt()/1000.);
+              m_MStrackLink_eta->push_back(mstp->eta());
+              m_MStrackLink_phi->push_back(mstp->phi());
+              m_MStrackLink_d0->push_back(mstp->d0());
+              m_MStrackLink_z0->push_back(mstp->z0());
+              m_MStrackLink_d0err->push_back(sqrt(mstp->definingParametersCovMatrix()(0,0)));
+              m_MStrackLink_z0err->push_back(sqrt(mstp->definingParametersCovMatrix()(1,1)));
+              m_MStrackLink_d0sig->push_back(fabs(mstp->d0())/sqrt(mstp->definingParametersCovMatrix()(0,0)));
+              m_MStrackLink_z0sig->push_back(fabs(mstp->z0())/sqrt(mstp->definingParametersCovMatrix()(1,1)));
+              }
+          if(cbtpLink.isValid()) {
+              cbtp = *cbtpLink;
+              m_CBtrackLink_pt->push_back(cbtp->pt()/1000.);
+              m_CBtrackLink_eta->push_back(cbtp->eta());
+              m_CBtrackLink_phi->push_back(cbtp->phi());
+              m_CBtrackLink_d0->push_back(cbtp->d0());
+              m_CBtrackLink_z0->push_back(cbtp->z0());
+              m_CBtrackLink_d0err->push_back(sqrt(cbtp->definingParametersCovMatrix()(0,0)));
+              m_CBtrackLink_z0err->push_back(sqrt(cbtp->definingParametersCovMatrix()(1,1)));
+              m_CBtrackLink_d0sig->push_back(fabs(cbtp->d0())/sqrt(cbtp->definingParametersCovMatrix()(0,0)));
+              m_CBtrackLink_z0sig->push_back(fabs(cbtp->z0())/sqrt(cbtp->definingParametersCovMatrix()(1,1)));
+              }
+
+          if(m_isMC) { //if it's MC it must match truth
+        	  float truthmuon=0;
+        	  const xAOD::TruthParticle* truth_mu1 = xAOD::TruthHelpers::getTruthParticle(*muon_itr);
+        	  if(truth_mu1 && truth_mu1->parent()->isZ() ) truthmuon=1;
+          }*/
+
+
+      } // close if ((isMC || (!isMC && m_HLT_mu15 && m_match_HLT_mu15)) && muon_itr->pt()/1000.>=25. && m_muonSelection->accept(*muon_itr) && m_isoSelection->accept(*muon_itr) && fabs(muon_itr->eta())<=2.4 && my_quality == 0 && muon_itr->muonType() == 0) {
+    } //close main muon loop
+    m_muonTree->Fill();
+    match_HLT_mu15->clear();
+    m_muon_pt->clear();
+    m_muon_eta->clear();
+    m_muon_phi->clear();
+    m_muon_charge->clear();
+    m_muon_quality->clear();
+    m_muon_type->clear();
+    /*m_IDtrackLink_pt->clear();
+    m_IDtrackLink_eta->clear();
+    m_IDtrackLink_phi->clear();
+    m_IDtrackLink_d0->clear();
+    m_IDtrackLink_z0->clear();
+    m_IDtrackLink_d0err->clear();
+    m_IDtrackLink_z0err->clear();
+    m_IDtrackLink_d0sig->clear();
+    m_IDtrackLink_z0sig->clear();
+    m_MStrackLink_pt->clear();
+    m_MStrackLink_eta->clear();
+    m_MStrackLink_phi->clear();
+    m_MStrackLink_d0->clear();
+    m_MStrackLink_z0->clear();
+    m_MStrackLink_d0err->clear();
+    m_MStrackLink_z0err->clear();
+    m_MStrackLink_d0sig->clear();
+    m_MStrackLink_z0sig->clear();
+    m_CBtrackLink_pt->clear();
+    m_CBtrackLink_eta->clear();
+    m_CBtrackLink_phi->clear();
+    m_CBtrackLink_d0->clear();
+    m_CBtrackLink_z0->clear();
+    m_CBtrackLink_d0err->clear();
+    m_CBtrackLink_z0err->clear();
+    m_CBtrackLink_d0sig->clear();
+    m_CBtrackLink_z0sig->clear();
+
+    m_Gmuon_pt->clear();
+    m_Gmuon_eta->clear();
+    m_Gmuon_phi->clear();
+    m_Gmuon_charge->clear();
+    m_Gmuon_quality->clear();
+    m_Gmuon_type->clear();
+
+    m_GLmuon_pt->clear();
+    m_GLmuon_eta->clear();
+    m_GLmuon_phi->clear();
+    m_GLmuon_charge->clear();
+    m_GLmuon_quality->clear();
+    m_GLmuon_type->clear();
+
+    m_FCLmuon_pt->clear();
+    m_FCLmuon_eta->clear();
+    m_FCLmuon_phi->clear();
+    m_FCLmuon_charge->clear();
+    m_FCLmuon_quality->clear();
+    m_FCLmuon_type->clear();
+
+    m_Lmuon_pt->clear();
+    m_Lmuon_eta->clear();
+    m_Lmuon_phi->clear();
+    m_Lmuon_charge->clear();
+    m_Lmuon_quality->clear();
+    m_Lmuon_type->clear(); */
+
+
+
+
+
+    setFilterPassed(true); //if got here, assume that means algorithm passed
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode MuonAnalysisAlg::beginInputFile() {
+    //
+    //This method is called at the start of each input file, even if
+    //the input file contains no events. Accumulate metadata information here
+    //
+
+    //example of retrieval of CutBookkeepers: (remember you will need to include the necessary header files and use statements in requirements file)
+     //const xAOD::CutBookkeeperContainer* bks = 0;
+     //CHECK( inputMetaStore()->retrieve(bks, "CutBookkeepers") );
+
+    //example of IOVMetaData retrieval (see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/AthAnalysisBase#How_to_access_file_metadata_in_C)
+    //float beamEnergy(0); CHECK( retrieveMetadata("/TagInfo","beam_energy",beamEnergy) );
+    //std::vector<float> bunchPattern; CHECK( retrieveMetadata("/Digitiation/Parameters","BeamIntensityPattern",bunchPattern) );
+
+
+
+    return StatusCode::SUCCESS;
+  }
+
+  double MuonAnalysisAlg::get_dR(const double eta1, const double phi1, const double eta2, const double phi2) {
+      double deta = fabs(eta1 - eta2);
+      double dphi = fabs(phi1 - phi2) < TMath::Pi() ? fabs(phi1 - phi2) : 2*TMath:: \
+        Pi() - fabs(phi1 - phi2);
+      return sqrt(deta*deta + dphi*dphi);
+    }
+
+  double MuonAnalysisAlg::ReturnFCalEnergy() {
+        /*const xAOD::VertexContainer * vertices = 0;
+        ATH_CHECK( evtStore()->retrieve (vertices, "PrimaryVertices"));
+        xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
+        xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
+        const xAOD::Vertex* pileup = 0;
+        int pile_up_vertices=0;
+        int trackn = 0;
+        for(;vtx_itr!=vtx_end;++vtx_itr) {
+              if((*vtx_itr)->vertexType()==xAOD::VxType::PileUp) {
+                    pileup = (*vtx_itr);
+                    trackn = pileup->nTrackParticles();
+                    if(trackn>6) pile_up_vertices=1;
+                }
+           }//if the number of tracks>6 then this is a pile up vertex
+       auto centTool = make_unique<HI::HICentralityTool>("CentralityTool");
+       ANA_CHECK( centTool->setProperty("RunSpecies","pPb2016") );
+       ANA_CHECK( centTool->initialize() );
+    	double ETsumFCal = 0;
+      ETsumFCal = centTool->getCentralityEstimator();
+      return ETsumFCal;
+    	float Centrality = 0;
+    	if (!pile_up_vertices) Centrality = centTool->getCentralityPercentile();*/
+
+  	  const xAOD::HIEventShapeContainer *hiue(0);
+      CHECK( evtStore()->retrieve(hiue,"CaloSums") );
+  	  xAOD::HIEventShapeContainer::const_iterator es_itr = hiue->begin();
+  	  xAOD::HIEventShapeContainer::const_iterator es_end = hiue->end();
+  	  double m_fcalEt = 0;
+  	  for (;es_itr!=es_end;es_itr++ ) {
+  	      float et = (*es_itr)->et();
+  	      const std::string name = (*es_itr)->auxdataConst<std::string>("Summary");
+  	      if (name=="FCal") m_fcalEt = et*1e-6;
+  	    }
+  	  return m_fcalEt;
+  	}
+}

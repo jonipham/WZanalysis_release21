@@ -1,0 +1,3 @@
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc15_13TeV/06/f0/DAOD_TRUTH3.10628214._000001.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc15_13TeV/fe/b0/DAOD_TRUTH3.10628214._000004.pool.root.1
+root://grid-dc.rzg.mpg.de:1094//pnfs/rzg.mpg.de/data/atlas/dq2/atlaslocalgroupdisk/rucio/mc15_13TeV/ac/09/DAOD_TRUTH3.10628214._000006.pool.root.1

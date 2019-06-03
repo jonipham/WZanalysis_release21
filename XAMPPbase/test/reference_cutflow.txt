@@ -1,0 +1,22 @@
+Extracting MetaData information...
+Having found CutFlow for MC, printing...
+Printing raw events
+CutFlowHisto                                DSID_410472_CutFlow
+Systematic variation                        Nominal   
+###############################################################
+Cut                                         Yields    
+###############################################################
+Initial                                     79370 ± 281.73
+PassGRL                                     79370 ± 281.73
+passLArTile                                 79370 ± 281.73
+Trigger                                     36223 ± 190.32
+HasVtx                                      36223 ± 190.32
+BadJet                                      36111 ± 190.03
+CosmicMuon                                  35862 ± 189.37
+BadMuon                                     35858 ± 189.36
+>= 2 jets                                   33871 ± 184.04
+>= 1 b-jet                                  30048 ± 173.34
+(Muon pt > 50 GeV || Electron pt > 50 GeV)  18752 ± 136.94
+MetTST > 50 GeV                             13319 ± 115.41
+Final                                       13319 ± 115.41
+###############################################################

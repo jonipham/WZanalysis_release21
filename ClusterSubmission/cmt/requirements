@@ -1,0 +1,12 @@
+package ClusterSubmission
+
+use AtlasPolicy AtlasPolicy-*
+
+public
+apply_pattern declare_python_modules files="../python/*.py"
+apply_pattern declare_calib files="../scripts/*.sh"
+
+
+
+
+

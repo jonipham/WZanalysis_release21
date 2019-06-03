@@ -1,0 +1,1 @@
+root://eosuser.cern.ch//eos/user/m/msaimper/ttbarDE_prod_v01/TRUTH1_scale3_m0p1_1p0c1_M100/DAOD_TRUTH1.ouput.pool.root

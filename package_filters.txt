@@ -1,0 +1,13 @@
++ MuonAnalysis
++ ClusterSubmission
++ CalcGenericMT2
++ XAMPPbase
++ athena/Event/xAOD/xAODPrimitives
++ athena/PhysicsAnalysis/AnalysisCommon/IsolationSelection
++ athena/PhysicsAnalysis/HeavyIonPhys/HIEventUtils
+- athena/Reconstruction/MET/METInterface
+- athena/Reconstruction/MET/METUtilities
++ athena/PhysicsAnalysis/SUSYPhys/SUSYTools
+- athena/Event/FourMomUtils
+- athena/Reconstruction/Jet/JetSubStructureUtils
+- .*
